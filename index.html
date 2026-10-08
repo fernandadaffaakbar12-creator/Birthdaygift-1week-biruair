@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Happy Birthday Devina Livia Rustiawan!</title>
+    <title>Happy Birthday Cintaku Rafandra Ezamawan!</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Outfit:wght@300;400;600&display=swap"
         rel="stylesheet">
@@ -18,7 +18,7 @@
 
     <div id="music-popup" class="music-popup">
         <p class="now-playing-top">Now Playing</p>
-        <img src="img/beautiful.jpeg" alt="Album Cover" class="album-cover">
+        <img src="img/5.jpeg" alt="Album Cover" class="album-cover">
         <div class="music-info">
             <div class="song-title-marquee">
                 <span class="song-title-text">Shape Of My Heart &nbsp;&nbsp;&nbsp;&nbsp;Shape Of My
@@ -40,9 +40,9 @@
     <!-- Tombol untuk memunculkan kembali pop up musik -->
     <button id="show-music-btn" class="show-music-btn" onclick="showMusicPopup()">🎵</button>
 
-    <div class="stars"></div>
-
-    <div class="twinkling"></div>
+    <!-- Background Bintang Berkelap-Kelip (Seluruh Halaman Website) -->
+    <canvas id="starfield-canvas"></canvas>
+    <div class="stars-css-fallback"></div>
 
     <div id="flower-rain"></div>
 
@@ -58,8 +58,8 @@
     <div id="pin-screen" style="display: none;">
         <div class="pin-container glass-panel">
             <h2>Enter PIN</h2>
-            <p style="margin-bottom: 2px;">passwordnya tanggal + tahun jadian kita yaa</p>
-            <p style="margin-top: 0;">(Awas aja kalau lupa)</p>
+            <p style="margin-bottom: 2px;">passwordnya tanggal + bulan jadian kita yaa</p>
+            <p style="margin-top: 0;">(Awas aja kalau lupa!!)</p>
             <input type="password" id="pin-input" maxlength="4" placeholder="****" inputmode="numeric" pattern="[0-9]*">
         </div>
     </div>
@@ -87,7 +87,7 @@
             <h1 class="aesthetic-font fade-in-text">Happy Birthday,<br>My Everything</h1>
             <p class="aesthetic-font fade-in-text"
                 style="font-size: 1.3rem; color: #ffffff; margin-top: -5px; margin-bottom: 10px; letter-spacing: 2px;">-
-                Devina Livia Rustiawan -</p>
+                Rafandra Ezamawan -</p>
             <img src="img/foto-pacar.png" alt="Foto Pacar" class="birthday-photo fade-in-text">
             <p class="typing-text">Hari ini adalah hari yang paling spesial karena di hari ini, semesta membawa kamu ke
                 dunia.</p>
@@ -125,31 +125,31 @@
             <div class="solar-system">
                 <div class="orbit-track">
 
-                    <div class="planet-card item1" data-caption="Dimsum Goreng">
+                    <div class="planet-card item1" data-caption="Pizza">
                         <img src="img/favorite-food.jpg" alt="Food">
                         <p class="planet-caption">Your favorite food</p>
                     </div>
 
-                    <div class="planet-card item2" data-caption="Matcha">
+                    <div class="planet-card item2" data-caption="Lemon Tea">
                         <img src="img/favorite-drink.jpg" alt="Drink">
                         <p class="planet-caption">Your favorite drink</p>
                     </div>
 
                     <div class="planet-card item3"
                         data-embed="https://open.spotify.com/embed/track/6ksyG6PARbZD5j4WTMJ08G?utm_source=generator&si=07466e8a11ec4d12"
-                        data-caption="1000 X- Ghea Indrawari">
+                        data-caption="Not Allowed - Tv Girl">
                         <img src="img/favorite-song.jpg" alt="Song">
                         <p class="planet-caption">Your favorite song</p>
                     </div>
 
                     <div class="planet-card item4"
-                        data-embed="https://www.tiktok.com/@shaturday/video/7691625379320171796"
-                        data-caption="Your Favorite TikToker">
-                        <img src="img/favorite-creators.jpg" alt="Shadira">
-                        <p class="planet-caption">Your favorite tiktok content creator</p>
+                        data-embed="https://www.youtube.com/embed/ZKK8hQMmRek?si=6jWvaLT0-Gh7yDxw"
+                        data-caption="Sambucha">
+                        <img src="img/favorite-yt.jpg" alt="YouTube Video">
+                        <p class="planet-caption">Your favorite Youtube Channel</p>
                     </div>
 
-                    <div class="planet-card item5" data-caption="Dika Aprilian Susanto">
+                    <div class="planet-card item5" data-caption="Afrina Lutfiah Khoirunnisa">
                         <img src="img/favorite-person.jpeg" alt="Person">
                         <p class="planet-caption">Your favorite person</p>
                     </div>
@@ -211,11 +211,11 @@
                 </div>
                 <div class="polaroid">
                     <img src="img/so.jpeg" alt="Foto Pribadi 3">
-                    <p class="caption">So</p>
+                    <p class="caption">My</p>
                 </div>
                 <div class="polaroid">
                     <img src="img/beautiful.jpeg" alt="Foto Pribadi 4">
-                    <p class="caption">Beautiful</p>
+                    <p class="caption">Handsome Boy</p>
                 </div>
             </div>
         </section>
@@ -237,8 +237,8 @@
             <hr style="border: 0; border-top: 1px solid rgba(255,182,193,0.3); margin-bottom: 20px;">
             <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 5px;">Dari orang yang paling bersyukur memilikimu,
             </p>
-            <p class="sender-name aesthetic-font baby-pink-text" style="font-size: 2rem; margin-top: 5px;">Dika Aprilian
-                Susanto</p>
+            <p class="sender-name aesthetic-font baby-pink-text" style="font-size: 2rem; margin-top: 5px;">Afrina
+                Lutfiah Khoirunnisa</p>
 
             <!-- Tombol Tiup Lilin -->
             <button id="btn-tiup-lilin" class="btn-tiup-lilin" onclick="bukaHalamanLilin()">🎂 Tiup Lilin</button>
@@ -270,7 +270,7 @@
                                 <div class="flame-inner"></div>
                             </div>
                             <div class="candle-number-body">
-                                <span class="candle-digit">9</span>
+                                <span class="candle-digit">5</span>
                             </div>
                         </div>
                     </div>

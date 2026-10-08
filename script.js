@@ -1,4 +1,279 @@
 // ==========================================
+// BACKGROUND KERLAP-KERLIP BINTANG & SHOOTING STARS
+// ==========================================
+(function initStarfield() {
+    function setupCanvas() {
+        const canvas = document.getElementById('starfield-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        let width = 0;
+        let height = 0;
+        let dpr = 1;
+        let stars = [];
+        let shootingStars = [];
+        let animationFrameId = null;
+        let lastTime = performance.now();
+        let nextShootingStarTime = performance.now() + 2000;
+
+        // Palette warna bintang (putih berlian murni & kristal cemerlang pada langit hitam pekat)
+        const STAR_COLORS = [
+            { r: 255, g: 255, b: 255 }, // Putih murni
+            { r: 255, g: 255, b: 255 },
+            { r: 255, g: 255, b: 255 },
+            { r: 255, g: 255, b: 255 },
+            { r: 245, g: 250, b: 255 }, // Putih keperakan
+            { r: 255, g: 250, b: 235 }  // Putih kristal hangat
+        ];
+
+        function resize() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            generateStars();
+        }
+
+        function generateStars() {
+            stars = [];
+            // Kerapatan bintang adaptif: ~130 di HP kecil, hingga ~260 di layar laptop/desktop besar
+            const count = Math.min(Math.max(Math.floor((width * height) / 5000), 130), 260);
+
+            for (let i = 0; i < count; i++) {
+                const colorObj = STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)];
+                const typeRoll = Math.random();
+                let radius, isSparkle, hasAura;
+
+                if (typeRoll < 0.65) {
+                    // Bintang mikro / debu galaksi halus
+                    radius = 0.65 + Math.random() * 0.6;
+                    isSparkle = false;
+                    hasAura = false;
+                } else if (typeRoll < 0.88) {
+                    // Bintang sedang dengan halo lembut
+                    radius = 1.3 + Math.random() * 0.9;
+                    isSparkle = false;
+                    hasAura = true;
+                } else {
+                    // Bintang hero berkilau 4-titik (cross flare)
+                    radius = 2.4 + Math.random() * 1.4;
+                    isSparkle = true;
+                    hasAura = true;
+                }
+
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    baseRadius: radius,
+                    r: colorObj.r,
+                    g: colorObj.g,
+                    b: colorObj.b,
+                    baseAlpha: 0.2 + Math.random() * 0.35,
+                    maxAlpha: 0.85 + Math.random() * 0.15,
+                    twinkleSpeed: 0.015 + Math.random() * 0.035,
+                    phase: Math.random() * Math.PI * 2,
+                    isSparkle: isSparkle,
+                    hasAura: hasAura,
+                    sparkleAngle: Math.random() * Math.PI,
+                    rotSpeed: (Math.random() - 0.5) * 0.005,
+                    vx: (Math.random() - 0.5) * 0.035,
+                    vy: (Math.random() - 0.5) * 0.035
+                });
+            }
+        }
+
+        function createShootingStar() {
+            const startX = Math.random() * (width * 0.9);
+            const startY = Math.random() * (height * 0.35);
+            const angle = (Math.PI / 180) * (32 + Math.random() * 16);
+            const speed = 11 + Math.random() * 6;
+            const length = 80 + Math.random() * 60;
+
+            shootingStars.push({
+                x: startX,
+                y: startY,
+                dx: Math.cos(angle) * speed,
+                dy: Math.sin(angle) * speed,
+                length: length,
+                speed: speed,
+                opacity: 1,
+                fadeSpeed: 0.02 + Math.random() * 0.015,
+                trailWidth: 1.5 + Math.random() * 0.8
+            });
+        }
+
+        function drawSparkle(x, y, radius, alpha, angle, r, g, b) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+
+            const armLength = radius * (2.8 + Math.sin(angle * 2) * 0.5);
+            const armWidth = Math.max(0.6, radius * 0.3);
+
+            const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, armLength);
+            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha})`);
+            grad.addColorStop(0.3, `rgba(${r}, ${g}, ${b}, ${alpha * 0.7})`);
+            grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+
+            ctx.fillStyle = grad;
+
+            // Sayap vertikal
+            ctx.beginPath();
+            ctx.moveTo(0, -armLength);
+            ctx.quadraticCurveTo(armWidth, 0, armWidth * 0.2, 0);
+            ctx.quadraticCurveTo(armWidth, 0, 0, armLength);
+            ctx.quadraticCurveTo(-armWidth, 0, -armWidth * 0.2, 0);
+            ctx.quadraticCurveTo(-armWidth, 0, 0, -armLength);
+            ctx.fill();
+
+            // Sayap horizontal
+            ctx.beginPath();
+            ctx.moveTo(-armLength, 0);
+            ctx.quadraticCurveTo(0, armWidth, 0, armWidth * 0.2);
+            ctx.quadraticCurveTo(0, armWidth, armLength, 0);
+            ctx.quadraticCurveTo(0, -armWidth, 0, -armWidth * 0.2);
+            ctx.quadraticCurveTo(0, -armWidth, -armLength, 0);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function render(currentTime) {
+            lastTime = currentTime;
+            ctx.clearRect(0, 0, width, height);
+
+            // 1. Gambar bintang berkelap-kelip
+            for (let i = 0; i < stars.length; i++) {
+                const s = stars[i];
+
+                s.phase += s.twinkleSpeed;
+                if (s.phase > Math.PI * 2) s.phase -= Math.PI * 2;
+
+                if (s.isSparkle) {
+                    s.sparkleAngle += s.rotSpeed;
+                }
+
+                s.x += s.vx;
+                s.y += s.vy;
+                if (s.x < 0) s.x = width;
+                else if (s.x > width) s.x = 0;
+                if (s.y < 0) s.y = height;
+                else if (s.y > height) s.y = 0;
+
+                const sinVal = (Math.sin(s.phase) + 1) * 0.5;
+                const alpha = s.baseAlpha + (s.maxAlpha - s.baseAlpha) * sinVal;
+                const currentR = s.baseRadius * (0.85 + 0.3 * sinVal);
+
+                // Halo lembut untuk bintang bercahaya
+                if (s.hasAura && alpha > 0.35) {
+                    const haloRadius = currentR * 3;
+                    const haloGrad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, haloRadius);
+                    haloGrad.addColorStop(0, `rgba(${s.r}, ${s.g}, ${s.b}, ${alpha * 0.45})`);
+                    haloGrad.addColorStop(0.5, `rgba(${s.r}, ${s.g}, ${s.b}, ${alpha * 0.15})`);
+                    haloGrad.addColorStop(1, `rgba(${s.r}, ${s.g}, ${s.b}, 0)`);
+
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, haloRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = haloGrad;
+                    ctx.fill();
+                }
+
+                // Efek 4-point cross sparkle (✦) untuk bintang hero
+                if (s.isSparkle && alpha > 0.4) {
+                    drawSparkle(s.x, s.y, currentR, alpha * 0.85, s.sparkleAngle, s.r, s.g, s.b);
+                }
+
+                // Titik bintang
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, currentR, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${s.r}, ${s.g}, ${s.b}, ${alpha})`;
+                ctx.fill();
+            }
+
+            // 2. Bintang jatuh berkala
+            if (currentTime > nextShootingStarTime) {
+                createShootingStar();
+                nextShootingStarTime = currentTime + 3500 + Math.random() * 3200;
+            }
+
+            // 3. Render bintang jatuh
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                const ss = shootingStars[i];
+
+                ss.x += ss.dx;
+                ss.y += ss.dy;
+                ss.opacity -= ss.fadeSpeed;
+
+                if (ss.opacity <= 0 || ss.x > width + 100 || ss.y > height + 100) {
+                    shootingStars.splice(i, 1);
+                    continue;
+                }
+
+                const tailX = ss.x - (ss.dx / ss.speed) * ss.length;
+                const tailY = ss.y - (ss.dy / ss.speed) * ss.length;
+
+                const trailGrad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+                trailGrad.addColorStop(0, `rgba(255, 255, 255, 0)`);
+                trailGrad.addColorStop(0.6, `rgba(255, 255, 255, ${ss.opacity * 0.45})`);
+                trailGrad.addColorStop(1, `rgba(255, 255, 255, ${ss.opacity})`);
+
+                ctx.beginPath();
+                ctx.moveTo(tailX, tailY);
+                ctx.lineTo(ss.x, ss.y);
+                ctx.strokeStyle = trailGrad;
+                ctx.lineWidth = ss.trailWidth;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // Inti kepala bintang jatuh
+                ctx.beginPath();
+                ctx.arc(ss.x, ss.y, ss.trailWidth * 1.2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${ss.opacity})`;
+                ctx.fill();
+            }
+
+            animationFrameId = requestAnimationFrame(render);
+        }
+
+        let resizeTimeout = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resize, 150);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+            } else {
+                lastTime = performance.now();
+                if (!animationFrameId) {
+                    animationFrameId = requestAnimationFrame(render);
+                }
+            }
+        });
+
+        resize();
+        animationFrameId = requestAnimationFrame(render);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupCanvas);
+    } else {
+        setupCanvas();
+    }
+})();
+
+// ==========================================
 // 0. ANIMASI LOADING "I LOVE YOU" MEMBENTUK HATI
 // ==========================================
 (function () {
@@ -175,7 +450,7 @@
         const pinPopupClose = document.getElementById('pin-popup-close');
 
         // DEFAULT PIN: Silakan ubah angka ini jika ingin PIN lain
-        const SECRET_PIN = "1726";
+        const SECRET_PIN = "0107";
 
         let pinAttempt = 0;
         let popupTimeout = null;
