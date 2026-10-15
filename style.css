@@ -15,8 +15,8 @@ html {
 
 body {
     font-family: 'Outfit', sans-serif;
-    background: #000000;
-    color: #ffffff;
+    background: #3ebcd9;
+    color: #0e293f;
     overflow-x: hidden;
     min-height: 100vh;
     min-height: 100dvh;
@@ -29,30 +29,30 @@ body {
 .aesthetic-font {
     font-family: 'Caveat', cursive;
     font-size: 3.5rem;
-    color: #ffb6c1;
-    /* Warna Baby Pink */
-    text-shadow: 2px 2px 8px rgba(255, 182, 193, 0.4);
+    color: #8c1b44;
+    /* Warna Deep Berry Rose yang romantis, tajam & kontras di atas air */
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.35);
 }
 
 .baby-pink-text {
-    color: #ffb6c1 !important;
+    color: #8c1b44 !important;
 }
 
 .white-text {
-    color: #ffffff !important;
+    color: #0e293f !important;
 }
 
 /* EFEK KACA KHUSUS UNTUK JUDUL */
 .glass-title {
     display: inline-block;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
     border-radius: 20px;
     padding: 10px 30px;
     margin-bottom: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 40, 75, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 /* =========================================
@@ -64,9 +64,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(ellipse at center, rgba(10, 10, 10, 0.75) 0%, rgba(0, 0, 0, 0.96) 100%);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    background: radial-gradient(ellipse at center, rgba(14, 45, 75, 0.82) 0%, rgba(5, 20, 38, 0.96) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 99999;
     display: flex;
     justify-content: center;
@@ -191,52 +191,136 @@ body {
 
 
 /* =========================================
-   ANIMASI BACKGROUND KERLAP-KERLIP BINTANG
+   BACKGROUND AIR BERGELOMBANG SANTAI (WATER BACKGROUND SYSTEM)
 ========================================= */
-#starfield-canvas {
+.water-bg-wrapper {
     position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    user-select: none;
+    background-color: #48cae4;
+}
+
+/* Layer 1: Gambar Air Lampiran dengan Undulasi Gelombang & Distorsi Refraksi */
+.water-bg-base {
+    position: absolute;
+    top: -6%;
+    left: -6%;
+    width: 112%;
+    height: 112%;
+    background-image: url('img/water-bg.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    transform-origin: 50% 50%;
+    filter: url(#water-displacement) brightness(1.02) contrast(1.06) saturate(1.12);
+    animation: gentleWaterSwell 16s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+/* Layer 2: Refraksi Caustics Ganda untuk Kedalaman Alami (Menyatu Santai) */
+.water-bg-caustic-layer {
+    position: absolute;
+    top: -6%;
+    left: -6%;
+    width: 112%;
+    height: 112%;
+    background-image: url('img/water-bg.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    mix-blend-mode: overlay;
+    opacity: 0.58;
+    filter: brightness(1.18) contrast(1.15) hue-rotate(6deg);
+    animation: causticDrift 22s ease-in-out infinite alternate-reverse;
+    will-change: transform, opacity;
+}
+
+/* Layer 3: Efek Kilauan Sinar Matahari & Biasan Pelangi Halus */
+.water-bg-shimmer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.45) 0%, rgba(190, 245, 255, 0.28) 28%, rgba(255, 220, 245, 0.16) 52%, transparent 75%);
+    mix-blend-mode: soft-light;
+    opacity: 0.8;
+    animation: sunbeamPulse 12s ease-in-out infinite alternate;
+}
+
+/* Layer 4: Canvas Gelombang Air Dinamis, Shimmer Caustics & Riak Interaktif */
+#water-canvas {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0;
+    z-index: 2;
     display: block;
 }
 
-/* Fallback bintang murni CSS (langsung tampil sebelum JS canvas render) */
-.stars-css-fallback {
-    position: fixed;
+/* Layer 5: Ambient Depth Overlay untuk Kontras Mewah & Keterbacaan Teks */
+.water-bg-depth-overlay {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    background: radial-gradient(ellipse at 50% 40%, rgba(10, 45, 75, 0.06) 0%, rgba(8, 35, 60, 0.22) 65%, rgba(4, 22, 42, 0.38) 100%);
     pointer-events: none;
-    z-index: 0;
-    opacity: 0.8;
-    background-image: 
-        radial-gradient(1px 1px at 25px 35px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(1.5px 1.5px at 120px 80px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(1px 1px at 210px 160px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(2px 2px at 320px 50px, rgba(255,255,255,0.95), rgba(0,0,0,0)),
-        radial-gradient(1.2px 1.2px at 410px 220px, rgba(240,245,255,0.85), rgba(0,0,0,0)),
-        radial-gradient(1px 1px at 530px 110px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(2.2px 2.2px at 640px 280px, rgba(255,255,255,0.95), rgba(0,0,0,0)),
-        radial-gradient(1px 1px at 750px 140px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(1.5px 1.5px at 860px 320px, rgba(240,245,255,0.85), rgba(0,0,0,0));
-    background-size: 550px 550px, 380px 380px, 460px 460px, 620px 620px, 420px 420px, 510px 510px, 680px 680px, 490px 490px, 540px 540px;
-    animation: starsTwinkleCSS 4.5s ease-in-out infinite alternate;
+    z-index: 3;
 }
 
-@keyframes starsTwinkleCSS {
+@keyframes gentleWaterSwell {
+    0% {
+        transform: scale(1.03) translate(0px, 0px) rotate(0deg);
+    }
+    33% {
+        transform: scale(1.06) translate(-8px, 6px) rotate(0.4deg);
+    }
+    66% {
+        transform: scale(1.04) translate(6px, -5px) rotate(-0.3deg);
+    }
+    100% {
+        transform: scale(1.07) translate(-5px, -8px) rotate(0.25deg);
+    }
+}
+
+@keyframes causticDrift {
+    0% {
+        transform: scale(1.05) translate(6px, -8px) rotate(-0.3deg);
+        opacity: 0.48;
+    }
+    50% {
+        transform: scale(1.02) translate(-5px, 7px) rotate(0.5deg);
+        opacity: 0.68;
+    }
+    100% {
+        transform: scale(1.06) translate(7px, 5px) rotate(-0.2deg);
+        opacity: 0.52;
+    }
+}
+
+@keyframes sunbeamPulse {
     0% {
         opacity: 0.55;
+        transform: scale(1) translateY(0);
     }
     50% {
         opacity: 0.9;
+        transform: scale(1.04) translateY(-8px);
     }
     100% {
-        opacity: 0.7;
+        opacity: 0.65;
+        transform: scale(0.98) translateY(5px);
     }
 }
 
@@ -320,9 +404,11 @@ body {
 
 .click-text {
     margin-top: 20px;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     letter-spacing: 2px;
-    color: #ffb6c1;
+    color: #8c1b44;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 0 14px rgba(255, 255, 255, 0.85);
 }
 
 @keyframes float-bouquet {
@@ -354,35 +440,41 @@ body {
 }
 
 .glass-panel {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(18px) saturate(130%);
+    -webkit-backdrop-filter: blur(18px) saturate(130%);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
     padding: 40px;
     margin-bottom: 80px;
     max-width: 700px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 16px 40px rgba(0, 45, 80, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
+.glass-panel h1,
 .glass-panel h2 {
     font-size: 2rem;
     margin-bottom: 20px;
+    color: #8c1b44;
+    text-shadow: none;
 }
 
 .glass-panel p {
     font-size: 1.1rem;
-    line-height: 1.6;
+    line-height: 1.7;
     margin-bottom: 15px;
-    color: #ffffff;
+    color: #0e293f;
+    text-shadow: none;
 }
 
 .scroll-hint {
     margin-top: 30px;
     font-size: 0.9rem;
-    opacity: 0.7;
+    color: #1a4466;
+    font-weight: 500;
+    text-shadow: none;
     animation: blink 2s infinite;
 }
 
@@ -532,24 +624,24 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
     padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 45, 80, 0.2);
     transition: border-color 0.3s, box-shadow 0.3s;
     cursor: pointer;
 }
 
 .planet-card:hover {
-    border-color: #ffb6c1;
-    box-shadow: 0 0 25px #ffb6c1;
+    border-color: #8c1b44;
+    box-shadow: 0 0 25px rgba(140, 27, 68, 0.35);
 }
 
 .planet-card img {
@@ -558,16 +650,16 @@ body {
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.9);
 }
 
 .planet-caption {
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: 600;
     font-style: italic;
-    color: #ffffff;
+    color: #0b2b48;
     line-height: 1.2;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    text-shadow: none;
 }
 
 /* Jarak Orbit DIPERBESAR (TranslateZ) agar kartu tidak berdempetan */
@@ -675,7 +767,8 @@ body {
 #modal-caption {
     margin-top: 20px;
     font-size: 1.5rem;
-    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.9);
     transform: translateY(20px);
     opacity: 0;
     transition: transform 0.5s ease, opacity 0.5s ease;
@@ -742,18 +835,22 @@ body {
 /* Hint text */
 .gallery-hint {
     font-size: 0.85rem;
-    color: rgba(255, 182, 193, 0.8);
+    color: #8c1b44;
+    font-weight: 600;
     text-align: center;
     margin-top: 15px;
     margin-bottom: 5px;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 0 12px rgba(255, 255, 255, 0.8);
     animation: blink 2s infinite;
     transition: color 0.5s ease;
 }
 
 .gallery-hint.hint-unlocked {
-    color: rgba(180, 255, 200, 0.9);
+    color: #0d603a;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95);
     animation: none;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
 }
 
 /* Slider */
@@ -796,13 +893,14 @@ body {
     flex: 0 0 auto;
     width: 220px;
     aspect-ratio: 9 / 16;
-    border-radius: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.75) !important;
+    box-shadow: 0 8px 25px rgba(0, 45, 80, 0.22), 0 0 15px rgba(255, 255, 255, 0.4) !important;
     cursor: pointer;
     scroll-snap-align: center;
     animation: float-photo 4s ease-in-out infinite;
     overflow: hidden;
+    background: #48cae4;
 }
 
 .scratch-card:nth-child(even) {
@@ -812,7 +910,7 @@ body {
 
 .scratch-card:hover {
     border-color: #ffffff !important;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7) !important;
+    box-shadow: 0 12px 30px rgba(0, 45, 80, 0.35), 0 0 25px rgba(255, 255, 255, 0.8) !important;
 }
 
 .scratch-card img {
@@ -832,6 +930,7 @@ body {
     z-index: 10;
     cursor: pointer;
     touch-action: none;
+    border-radius: inherit;
 }
 
 /* =========================================
@@ -983,18 +1082,18 @@ body {
     bottom: 30px;
     left: -100%;
     /* Disembunyikan jauh di luar layar kiri */
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    background: rgba(10, 36, 64, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
+    border-radius: 16px;
     padding: 15px;
     display: flex;
     flex-direction: column;
     /* Ubah ke layout vertikal (kotak) */
     align-items: center;
     width: 140px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 30, 60, 0.45);
     z-index: 9999;
     /* Animasi lambat ditarik */
     transition: left 1s cubic-bezier(0.25, 1, 0.5, 1);
@@ -1225,11 +1324,11 @@ body {
     width: 35px;
     height: 80px;
     /* Bentuk persegi panjang ke bawah */
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 0 10px 10px 0;
+    background: rgba(10, 36, 64, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    border-radius: 0 12px 12px 0;
     /* Sisi kiri mendatar menempel layar, sisi kanan melengkung */
     font-size: 1.2rem;
     cursor: pointer;
@@ -1238,7 +1337,7 @@ body {
     justify-content: center;
     align-items: center;
     transition: left 1s cubic-bezier(0.25, 1, 0.5, 1), width 0.2s;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 4px 0 15px rgba(0, 30, 60, 0.4);
     /* Bayangan mengarah ke kanan */
 }
 
@@ -1288,11 +1387,12 @@ body {
 .pin-container {
     text-align: center;
     padding: 40px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(18px) saturate(130%);
+    -webkit-backdrop-filter: blur(18px) saturate(130%);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 16px 40px rgba(0, 45, 80, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.95);
     transform: scale(0.8);
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     width: 90%;
@@ -1304,15 +1404,18 @@ body {
 }
 
 .pin-container h2 {
-    color: #fff;
+    color: #0b2b48;
     margin-bottom: 5px;
     font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    text-shadow: none;
 }
 
 .pin-container p {
-    color: rgba(255, 255, 255, 0.6);
+    color: #1a4263;
     font-size: 0.9rem;
     margin-bottom: 25px;
+    text-shadow: none;
 }
 
 #pin-input {
@@ -1320,19 +1423,21 @@ body {
     padding: 12px;
     font-size: 1.5rem;
     text-align: center;
-    border-radius: 10px;
-    border: none;
+    border-radius: 12px;
+    border: 1.5px solid rgba(11, 43, 72, 0.22);
     outline: none;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.95);
+    color: #0b2b48;
     letter-spacing: 15px;
     margin-bottom: 20px;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 30, 60, 0.08);
 }
 
 #pin-input:focus {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 15px rgba(255, 117, 140, 0.4);
+    background: #ffffff;
+    border-color: #8c1b44;
+    box-shadow: 0 0 18px rgba(140, 27, 68, 0.3);
 }
 
 /* =========================================
@@ -1344,9 +1449,9 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(8, 28, 50, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     z-index: 100000;
     display: flex;
     justify-content: center;
@@ -1362,8 +1467,8 @@ body {
 }
 
 .pin-popup-box {
-    background: linear-gradient(145deg, rgba(30, 15, 50, 0.95), rgba(15, 10, 35, 0.98));
-    border: 1px solid rgba(255, 182, 193, 0.25);
+    background: linear-gradient(145deg, rgba(20, 45, 75, 0.96), rgba(10, 30, 55, 0.98));
+    border: 1px solid rgba(255, 182, 193, 0.35);
     border-radius: 24px;
     padding: 35px 30px 28px;
     text-align: center;
@@ -1371,8 +1476,8 @@ body {
     width: 85%;
     box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.6),
-        0 0 40px rgba(255, 182, 193, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        0 0 40px rgba(255, 182, 193, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
     transform: scale(0) rotate(-8deg);
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
@@ -1610,9 +1715,9 @@ body {
     width: 100%;
     height: 100%;
     z-index: 99990;
-    background: radial-gradient(ellipse at center bottom, rgba(12, 12, 12, 0.9) 0%, rgba(0, 0, 0, 0.98) 100%);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    background: radial-gradient(ellipse at center bottom, rgba(12, 35, 60, 0.88) 0%, rgba(4, 15, 30, 0.98) 100%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     opacity: 0;
     transition: opacity 0.8s ease;
     overflow-y: auto;

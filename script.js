@@ -1,9 +1,10 @@
 // ==========================================
-// BACKGROUND KERLAP-KERLIP BINTANG & SHOOTING STARS
+// BACKGROUND AIR BERGELOMBANG SANTAI (WATER WAVE & CAUSTIC ENGINE)
 // ==========================================
-(function initStarfield() {
-    function setupCanvas() {
-        const canvas = document.getElementById('starfield-canvas');
+(function initWaterEffect() {
+    function setupWater() {
+        const canvas = document.getElementById('water-canvas');
+        const turbulenceEl = document.getElementById('water-turbulence');
         if (!canvas) return;
 
         const ctx = canvas.getContext('2d');
@@ -12,21 +13,23 @@
         let width = 0;
         let height = 0;
         let dpr = 1;
-        let stars = [];
-        let shootingStars = [];
         let animationFrameId = null;
-        let lastTime = performance.now();
-        let nextShootingStarTime = performance.now() + 2000;
+        let startTime = performance.now();
+        let lastTime = startTime;
 
-        // Palette warna bintang (putih berlian murni & kristal cemerlang pada langit hitam pekat)
-        const STAR_COLORS = [
-            { r: 255, g: 255, b: 255 }, // Putih murni
-            { r: 255, g: 255, b: 255 },
-            { r: 255, g: 255, b: 255 },
-            { r: 255, g: 255, b: 255 },
-            { r: 245, g: 250, b: 255 }, // Putih keperakan
-            { r: 255, g: 250, b: 235 }  // Putih kristal hangat
-        ];
+        // Kumpulan riak air interaktif (interaksi klik / sentuh)
+        const ripples = [];
+        const MAX_RIPPLES = 12;
+
+        // Kumpulan kilauan cahaya matahari (water sparkles / glints)
+        let sparkles = [];
+
+        // Kumpulan kurva kaustik air bergelombang (flowing caustics ribbons)
+        let waveRibbons = [];
+
+        // Timer untuk riak tetesan air santai otomatis jika layar diam
+        let lastInteractionTime = performance.now();
+        let nextIdleDropTime = performance.now() + 3000;
 
         function resize() {
             dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -38,205 +41,243 @@
             canvas.style.height = height + 'px';
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            generateStars();
+            generateWaveRibbons();
+            generateSparkles();
         }
 
-        function generateStars() {
-            stars = [];
-            // Kerapatan bintang adaptif: ~130 di HP kecil, hingga ~260 di layar laptop/desktop besar
-            const count = Math.min(Math.max(Math.floor((width * height) / 5000), 130), 260);
-
+        // Membuat konfigurasi pita gelombang kaustik air santai
+        function generateWaveRibbons() {
+            waveRibbons = [];
+            const count = Math.min(Math.max(Math.floor(height / 85), 8), 16);
             for (let i = 0; i < count; i++) {
-                const colorObj = STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)];
-                const typeRoll = Math.random();
-                let radius, isSparkle, hasAura;
-
-                if (typeRoll < 0.65) {
-                    // Bintang mikro / debu galaksi halus
-                    radius = 0.65 + Math.random() * 0.6;
-                    isSparkle = false;
-                    hasAura = false;
-                } else if (typeRoll < 0.88) {
-                    // Bintang sedang dengan halo lembut
-                    radius = 1.3 + Math.random() * 0.9;
-                    isSparkle = false;
-                    hasAura = true;
-                } else {
-                    // Bintang hero berkilau 4-titik (cross flare)
-                    radius = 2.4 + Math.random() * 1.4;
-                    isSparkle = true;
-                    hasAura = true;
-                }
-
-                stars.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    baseRadius: radius,
-                    r: colorObj.r,
-                    g: colorObj.g,
-                    b: colorObj.b,
-                    baseAlpha: 0.2 + Math.random() * 0.35,
-                    maxAlpha: 0.85 + Math.random() * 0.15,
-                    twinkleSpeed: 0.015 + Math.random() * 0.035,
+                waveRibbons.push({
+                    baseY: (height / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 40,
+                    amplitude: 8 + Math.random() * 12,
+                    frequency: 0.003 + Math.random() * 0.003,
+                    speed: 0.0006 + Math.random() * 0.0005,
                     phase: Math.random() * Math.PI * 2,
-                    isSparkle: isSparkle,
-                    hasAura: hasAura,
-                    sparkleAngle: Math.random() * Math.PI,
-                    rotSpeed: (Math.random() - 0.5) * 0.005,
-                    vx: (Math.random() - 0.5) * 0.035,
-                    vy: (Math.random() - 0.5) * 0.035
+                    lineWidth: 1.2 + Math.random() * 1.8,
+                    alpha: 0.12 + Math.random() * 0.14,
+                    // Warna bias spektrum pelangi lembut (matching foto lampiran)
+                    hueOffset: Math.random() * 30 - 15,
+                    iridescent: i % 3 === 0
                 });
             }
         }
 
-        function createShootingStar() {
-            const startX = Math.random() * (width * 0.9);
-            const startY = Math.random() * (height * 0.35);
-            const angle = (Math.PI / 180) * (32 + Math.random() * 16);
-            const speed = 11 + Math.random() * 6;
-            const length = 80 + Math.random() * 60;
-
-            shootingStars.push({
-                x: startX,
-                y: startY,
-                dx: Math.cos(angle) * speed,
-                dy: Math.sin(angle) * speed,
-                length: length,
-                speed: speed,
-                opacity: 1,
-                fadeSpeed: 0.02 + Math.random() * 0.015,
-                trailWidth: 1.5 + Math.random() * 0.8
-            });
+        // Membuat kilauan pantulan cahaya matahari pada puncak gelombang
+        function generateSparkles() {
+            sparkles = [];
+            const count = Math.min(Math.max(Math.floor((width * height) / 22000), 22), 48);
+            for (let i = 0; i < count; i++) {
+                sparkles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: 2.5 + Math.random() * 3.5,
+                    alpha: 0,
+                    maxAlpha: 0.45 + Math.random() * 0.4,
+                    twinkleSpeed: 0.0012 + Math.random() * 0.002,
+                    phase: Math.random() * Math.PI * 2,
+                    rotation: Math.random() * Math.PI,
+                    rotSpeed: (Math.random() - 0.5) * 0.004,
+                    // Sedikit bias pelangi (merah muda, cyan, emas lembut)
+                    type: Math.random() < 0.35 ? 'iridescent' : 'pure'
+                });
+            }
         }
 
-        function drawSparkle(x, y, radius, alpha, angle, r, g, b) {
+        // Menambahkan riak air lembut (ripple)
+        function addRipple(x, y, strength = 1.0) {
+            if (ripples.length >= MAX_RIPPLES) {
+                ripples.shift();
+            }
+            ripples.push({
+                x: x,
+                y: y,
+                radius: 2,
+                maxRadius: Math.min(width, height) * (0.35 + Math.random() * 0.15) * strength,
+                speed: 1.2 + Math.random() * 0.6,
+                strength: strength,
+                alpha: 0.75 * strength,
+                width: 2.2 + Math.random() * 1.2
+            });
+            lastInteractionTime = performance.now();
+        }
+
+        // Listener interaksi sentuh / klik / gerak cursor
+        let lastMove = 0;
+        function handlePointer(e) {
+            const now = performance.now();
+            const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : null);
+            const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : null);
+            if (clientX === null || clientY === null) return;
+
+            // Throttle untuk pergerakan halus (efek wake ripple santai)
+            if (now - lastMove > 180) {
+                addRipple(clientX, clientY, 0.45);
+                lastMove = now;
+            }
+        }
+
+        function handleClick(e) {
+            const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : null);
+            const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : null);
+            if (clientX === null || clientY === null) return;
+            addRipple(clientX, clientY, 0.9);
+        }
+
+        window.addEventListener('pointermove', handlePointer, { passive: true });
+        window.addEventListener('pointerdown', handleClick, { passive: true });
+        window.addEventListener('touchstart', handleClick, { passive: true });
+
+        // Menggambar kilauan 4-point star kristal matahari di permukaan air
+        function drawSparkle(x, y, size, alpha, rotation, isIridescent) {
             ctx.save();
             ctx.translate(x, y);
-            ctx.rotate(angle);
+            ctx.rotate(rotation);
 
-            const armLength = radius * (2.8 + Math.sin(angle * 2) * 0.5);
-            const armWidth = Math.max(0.6, radius * 0.3);
+            let strokeColor = `rgba(255, 255, 255, ${alpha})`;
+            let coreColor = `rgba(255, 255, 255, ${alpha * 0.9})`;
+            if (isIridescent) {
+                // Bias warna pelangi lembut khas refraksi air
+                coreColor = `rgba(255, 220, 245, ${alpha * 0.85})`;
+            }
 
-            const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, armLength);
-            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha})`);
-            grad.addColorStop(0.3, `rgba(${r}, ${g}, ${b}, ${alpha * 0.7})`);
-            grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+            // Sayap vertikal & horizontal
+            const len = size * 2.6;
+            const w = size * 0.35;
 
-            ctx.fillStyle = grad;
-
-            // Sayap vertikal
+            ctx.fillStyle = coreColor;
             ctx.beginPath();
-            ctx.moveTo(0, -armLength);
-            ctx.quadraticCurveTo(armWidth, 0, armWidth * 0.2, 0);
-            ctx.quadraticCurveTo(armWidth, 0, 0, armLength);
-            ctx.quadraticCurveTo(-armWidth, 0, -armWidth * 0.2, 0);
-            ctx.quadraticCurveTo(-armWidth, 0, 0, -armLength);
+            ctx.moveTo(0, -len);
+            ctx.quadraticCurveTo(w, 0, 0, len);
+            ctx.quadraticCurveTo(-w, 0, 0, -len);
             ctx.fill();
 
-            // Sayap horizontal
             ctx.beginPath();
-            ctx.moveTo(-armLength, 0);
-            ctx.quadraticCurveTo(0, armWidth, 0, armWidth * 0.2);
-            ctx.quadraticCurveTo(0, armWidth, armLength, 0);
-            ctx.quadraticCurveTo(0, -armWidth, 0, -armWidth * 0.2);
-            ctx.quadraticCurveTo(0, -armWidth, -armLength, 0);
+            ctx.moveTo(-len, 0);
+            ctx.quadraticCurveTo(0, w, len, 0);
+            ctx.quadraticCurveTo(0, -w, -len, 0);
+            ctx.fill();
+
+            // Inti kilau
+            ctx.beginPath();
+            ctx.arc(0, 0, size * 0.65, 0, Math.PI * 2);
+            ctx.fillStyle = strokeColor;
             ctx.fill();
 
             ctx.restore();
         }
 
-        function render(currentTime) {
-            lastTime = currentTime;
+        // Render loop
+        function render(time) {
+            const delta = time - lastTime;
+            lastTime = time;
+
             ctx.clearRect(0, 0, width, height);
 
-            // 1. Gambar bintang berkelap-kelip
-            for (let i = 0; i < stars.length; i++) {
-                const s = stars[i];
+            // 1. Gambar pita gelombang kaustik air (Flowing Sunlight Caustics Ribbons)
+            for (let i = 0; i < waveRibbons.length; i++) {
+                const w = waveRibbons[i];
+                ctx.save();
+                ctx.beginPath();
 
-                s.phase += s.twinkleSpeed;
-                if (s.phase > Math.PI * 2) s.phase -= Math.PI * 2;
+                const t = time * w.speed + w.phase;
+                const waveGrad = ctx.createLinearGradient(0, w.baseY, width, w.baseY);
 
-                if (s.isSparkle) {
-                    s.sparkleAngle += s.rotSpeed;
+                if (w.iridescent) {
+                    waveGrad.addColorStop(0, `rgba(200, 245, 255, 0)`);
+                    waveGrad.addColorStop(0.3, `rgba(255, 225, 245, ${w.alpha * 0.8})`);
+                    waveGrad.addColorStop(0.7, `rgba(180, 250, 245, ${w.alpha})`);
+                    waveGrad.addColorStop(1, `rgba(220, 240, 255, 0)`);
+                } else {
+                    waveGrad.addColorStop(0, `rgba(255, 255, 255, 0)`);
+                    waveGrad.addColorStop(0.5, `rgba(255, 255, 255, ${w.alpha})`);
+                    waveGrad.addColorStop(1, `rgba(255, 255, 255, 0)`);
                 }
 
-                s.x += s.vx;
-                s.y += s.vy;
-                if (s.x < 0) s.x = width;
-                else if (s.x > width) s.x = 0;
-                if (s.y < 0) s.y = height;
-                else if (s.y > height) s.y = 0;
+                ctx.strokeStyle = waveGrad;
+                ctx.lineWidth = w.lineWidth;
+                ctx.lineCap = 'round';
+
+                // Garis bergelombang santai menggunakan kombinasi sinus halus
+                const step = 20;
+                let started = false;
+                for (let x = -20; x <= width + 20; x += step) {
+                    const wave1 = Math.sin(x * w.frequency + t) * w.amplitude;
+                    const wave2 = Math.cos(x * w.frequency * 0.6 - t * 0.8) * (w.amplitude * 0.4);
+                    const y = w.baseY + wave1 + wave2;
+
+                    if (!started) {
+                        ctx.moveTo(x, y);
+                        started = true;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 2. Gambar kilauan cahaya matahari pada permukaan air (Sparkles)
+            for (let i = 0; i < sparkles.length; i++) {
+                const s = sparkles[i];
+                s.phase += s.twinkleSpeed * delta;
+                s.rotation += s.rotSpeed;
 
                 const sinVal = (Math.sin(s.phase) + 1) * 0.5;
-                const alpha = s.baseAlpha + (s.maxAlpha - s.baseAlpha) * sinVal;
-                const currentR = s.baseRadius * (0.85 + 0.3 * sinVal);
+                const alpha = s.maxAlpha * Math.pow(sinVal, 2.2);
 
-                // Halo lembut untuk bintang bercahaya
-                if (s.hasAura && alpha > 0.35) {
-                    const haloRadius = currentR * 3;
-                    const haloGrad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, haloRadius);
-                    haloGrad.addColorStop(0, `rgba(${s.r}, ${s.g}, ${s.b}, ${alpha * 0.45})`);
-                    haloGrad.addColorStop(0.5, `rgba(${s.r}, ${s.g}, ${s.b}, ${alpha * 0.15})`);
-                    haloGrad.addColorStop(1, `rgba(${s.r}, ${s.g}, ${s.b}, 0)`);
-
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, haloRadius, 0, Math.PI * 2);
-                    ctx.fillStyle = haloGrad;
-                    ctx.fill();
+                if (alpha > 0.05) {
+                    drawSparkle(s.x, s.y, s.size * (0.8 + 0.4 * sinVal), alpha, s.rotation, s.type === 'iridescent');
                 }
-
-                // Efek 4-point cross sparkle (✦) untuk bintang hero
-                if (s.isSparkle && alpha > 0.4) {
-                    drawSparkle(s.x, s.y, currentR, alpha * 0.85, s.sparkleAngle, s.r, s.g, s.b);
-                }
-
-                // Titik bintang
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, currentR, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${s.r}, ${s.g}, ${s.b}, ${alpha})`;
-                ctx.fill();
             }
 
-            // 2. Bintang jatuh berkala
-            if (currentTime > nextShootingStarTime) {
-                createShootingStar();
-                nextShootingStarTime = currentTime + 3500 + Math.random() * 3200;
-            }
+            // 3. Gambar riak air sentuhan (Interactive Ripples)
+            for (let i = ripples.length - 1; i >= 0; i--) {
+                const r = ripples[i];
+                r.radius += r.speed;
+                r.alpha *= 0.982;
 
-            // 3. Render bintang jatuh
-            for (let i = shootingStars.length - 1; i >= 0; i--) {
-                const ss = shootingStars[i];
-
-                ss.x += ss.dx;
-                ss.y += ss.dy;
-                ss.opacity -= ss.fadeSpeed;
-
-                if (ss.opacity <= 0 || ss.x > width + 100 || ss.y > height + 100) {
-                    shootingStars.splice(i, 1);
+                if (r.alpha <= 0.015 || r.radius >= r.maxRadius) {
+                    ripples.splice(i, 1);
                     continue;
                 }
 
-                const tailX = ss.x - (ss.dx / ss.speed) * ss.length;
-                const tailY = ss.y - (ss.dy / ss.speed) * ss.length;
-
-                const trailGrad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
-                trailGrad.addColorStop(0, `rgba(255, 255, 255, 0)`);
-                trailGrad.addColorStop(0.6, `rgba(255, 255, 255, ${ss.opacity * 0.45})`);
-                trailGrad.addColorStop(1, `rgba(255, 255, 255, ${ss.opacity})`);
-
+                // Cincin terang utama
+                ctx.save();
                 ctx.beginPath();
-                ctx.moveTo(tailX, tailY);
-                ctx.lineTo(ss.x, ss.y);
-                ctx.strokeStyle = trailGrad;
-                ctx.lineWidth = ss.trailWidth;
-                ctx.lineCap = 'round';
+                ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(255, 255, 255, ${r.alpha * 0.65})`;
+                ctx.lineWidth = r.width;
                 ctx.stroke();
 
-                // Inti kepala bintang jatuh
-                ctx.beginPath();
-                ctx.arc(ss.x, ss.y, ss.trailWidth * 1.2, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${ss.opacity})`;
-                ctx.fill();
+                // Cincin sekunder luar (bias air lembut)
+                if (r.radius > 12) {
+                    ctx.beginPath();
+                    ctx.arc(r.x, r.y, r.radius * 0.82, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(180, 240, 255, ${r.alpha * 0.35})`;
+                    ctx.lineWidth = r.width * 0.7;
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+
+            // 4. Riak air otomatis saat layar santai tidak disentuh
+            if (time > nextIdleDropTime) {
+                const dropX = width * (0.2 + Math.random() * 0.6);
+                const dropY = height * (0.2 + Math.random() * 0.6);
+                addRipple(dropX, dropY, 0.55);
+                nextIdleDropTime = time + 4200 + Math.random() * 2500;
+            }
+
+            // 5. Animasi halus frekuensi gelombang pada SVG displacement filter
+            if (turbulenceEl) {
+                // Pergeseran super santai pada baseFrequency membuat texture air bergelombang hidup secara organik
+                const freqX = 0.012 + Math.sin(time * 0.0006) * 0.0025;
+                const freqY = 0.020 + Math.cos(time * 0.0005) * 0.003;
+                turbulenceEl.setAttribute('baseFrequency', `${freqX.toFixed(5)} ${freqY.toFixed(5)}`);
             }
 
             animationFrameId = requestAnimationFrame(render);
@@ -245,7 +286,7 @@
         let resizeTimeout = null;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(resize, 150);
+            resizeTimeout = setTimeout(resize, 120);
         });
 
         document.addEventListener('visibilitychange', () => {
@@ -267,9 +308,9 @@
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupCanvas);
+        document.addEventListener('DOMContentLoaded', setupWater);
     } else {
-        setupCanvas();
+        setupWater();
     }
 })();
 
@@ -450,7 +491,7 @@
         const pinPopupClose = document.getElementById('pin-popup-close');
 
         // DEFAULT PIN: Silakan ubah angka ini jika ingin PIN lain
-        const SECRET_PIN = "1718";
+        const SECRET_PIN = "2505";
 
         let pinAttempt = 0;
         let popupTimeout = null;
@@ -715,6 +756,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 else if (this.classList.contains('polaroid')) {
                     modalImg.src = this.querySelector('img').src;
                     modalImg.style.aspectRatio = "3 / 4";
+                    const polaroidCap = this.querySelector('.caption');
+                    if (modalCaption) modalCaption.innerText = polaroidCap ? polaroidCap.innerText : '';
                 }
                 // D. JIKA YANG DIKLIK ADALAH GALERI CINTA
                 else {
@@ -1001,21 +1044,105 @@ document.addEventListener('DOMContentLoaded', () => {
         gallerySlider.classList.add('slider-visible');
     }
 
+    // Preload gambar background air untuk motif canvas gosok
+    const waterBgImage = new Image();
+    waterBgImage.src = 'img/water-bg.jpg';
+
+    function paintWaterScratchCanvas(canvas, ctx, index) {
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // 1. Warna dasar gradasi air turquoise/aquamarine sama persis dengan background
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#5ee2f7');
+        grad.addColorStop(0.35, '#38caea');
+        grad.addColorStop(0.7, '#1faed4');
+        grad.addColorStop(1, '#118dae');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. Gambar motif background air (water-bg.jpg)
+        if (waterBgImage.complete && waterBgImage.naturalWidth > 0) {
+            const imgW = waterBgImage.naturalWidth;
+            const imgH = waterBgImage.naturalHeight;
+            const sWidth = imgW;
+            const sHeight = Math.min(imgH, imgW * (h / w));
+            const maxOffsetY = Math.max(0, imgH - sHeight);
+            const offsetY = maxOffsetY > 0 ? (index % 3) * (maxOffsetY / 2) : 0;
+
+            ctx.drawImage(
+                waterBgImage,
+                0, offsetY, sWidth, sHeight,
+                0, 0, w, h
+            );
+        }
+
+        // 3. Efek kilauan & caustics sinar matahari yang menyatu dengan air
+        const shimmer = ctx.createRadialGradient(
+            w * 0.4, h * 0.25, 10,
+            w * 0.5, h * 0.45, w * 0.85
+        );
+        shimmer.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+        shimmer.addColorStop(0.3, 'rgba(200, 245, 255, 0.22)');
+        shimmer.addColorStop(0.7, 'rgba(160, 230, 248, 0.08)');
+        shimmer.addColorStop(1, 'rgba(4, 35, 60, 0.18)');
+        ctx.fillStyle = shimmer;
+        ctx.fillRect(0, 0, w, h);
+
+        // 4. Titik-titik pantulan sinar air halus
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        const sparkles = [
+            { x: w * 0.25, y: h * 0.18, r: 2.2 },
+            { x: w * 0.78, y: h * 0.28, r: 1.8 },
+            { x: w * 0.22, y: h * 0.65, r: 1.6 },
+            { x: w * 0.82, y: h * 0.72, r: 2.0 },
+            { x: w * 0.5, y: h * 0.12, r: 2.5 }
+        ];
+        sparkles.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // 6. Mode destination-out agar saat digosok langsung menghapus motif air dan memunculkan foto
+        ctx.globalCompositeOperation = 'destination-out';
+    }
+
+    waterBgImage.onload = () => {
+        canvases.forEach((canvas, index) => {
+            if (!canvas._hasStartedScratching && !clearedSet.has(index)) {
+                const ctx = canvas.getContext('2d');
+                ctx.globalCompositeOperation = 'source-over';
+                paintWaterScratchCanvas(canvas, ctx, index);
+            }
+        });
+    };
+
     function checkCanvasCleared(canvas, index) {
         if (clearedSet.has(index)) return;
 
-        const ctx = canvas.getContext('2d');
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const pixels = imageData.data;
-        let transparentCount = 0;
-        let sampledCount = 0;
+        let ratio = 0;
+        try {
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+            let transparentCount = 0;
+            let sampledCount = 0;
 
-        for (let i = 3; i < pixels.length; i += 8) {
-            sampledCount++;
-            if (pixels[i] === 0) transparentCount++;
+            for (let i = 3; i < pixels.length; i += 8) {
+                sampledCount++;
+                if (pixels[i] === 0) transparentCount++;
+            }
+
+            ratio = transparentCount / sampledCount;
+        } catch (err) {
+            // Jika canvas di-taint (misal dibuka langsung via file:// di Chrome),
+            // fallback gunakan jumlah goresan gosok agar tetap 100% berfungsi normal
+            if (canvas._erasedStrokes && canvas._erasedStrokes >= 25) {
+                ratio = 0.5;
+            }
         }
 
-        const ratio = transparentCount / sampledCount;
         if (ratio > 0.45) {
             clearedSet.add(index);
             // Fade out sisa canvas
@@ -1064,25 +1191,11 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.width = 220;
             canvas.height = Math.round(220 * 16 / 9);
 
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = 0; i < 200; i++) {
-                ctx.beginPath();
-                ctx.arc(
-                    Math.random() * canvas.width,
-                    Math.random() * canvas.height,
-                    Math.random() * 1.5,
-                    0, Math.PI * 2
-                );
-                ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.8)' : 'rgba(255,182,193,0.8)';
-                ctx.fill();
-            }
-
-            ctx.globalCompositeOperation = 'destination-out';
+            paintWaterScratchCanvas(canvas, ctx, index);
 
             const startPosition = (e) => {
                 isDrawing = true;
+                canvas._hasStartedScratching = true;
                 drawMoveCount = 0;
                 draw(e);
             };
@@ -1120,6 +1233,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.beginPath();
                 ctx.moveTo(x, y);
 
+                canvas._erasedStrokes = (canvas._erasedStrokes || 0) + 1;
+
                 // Juga cek selama menggosok setiap 15 gerakan
                 drawMoveCount++;
                 if (drawMoveCount % 15 === 0) {
@@ -1139,7 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 draw(e);
             }, { passive: false });
 
-        }, 500);
+        }, 400);
     });
 });
 

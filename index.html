@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Happy Birthday Cintaku Elloy!</title>
+    <title>Happy Birthday Cintaku Azril!</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Outfit:wght@300;400;600&display=swap"
         rel="stylesheet">
@@ -13,7 +13,7 @@
 
 <body>
     <audio id="bg-music" loop>
-        <source src="audio/Sal Priadi - Besok Kita Pergi Makan (Unofficial Lyric Video).mp3" type="audio/mpeg">
+        <source src="audio/LANY - you! (Lyrics).mp3" type="audio/mpeg">
     </audio>
 
     <div id="music-popup" class="music-popup">
@@ -21,10 +21,9 @@
         <img src="img/5.jpeg" alt="Album Cover" class="album-cover">
         <div class="music-info">
             <div class="song-title-marquee">
-                <span class="song-title-text">Besok Kita Pergi Makan &nbsp;&nbsp;&nbsp;&nbsp;Besok Kita Pergi
-                    Makan&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span class="song-title-text">You &nbsp;&nbsp;&nbsp;&nbsp;You&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </div>
-            <p class="artist-name">Sal Priadi</p>
+            <p class="artist-name">LANY</p>
         </div>
         <button id="play-pause-btn" class="play-pause-btn" onclick="toggleMusic()">
             <!-- SVG Pause Icon -->
@@ -40,9 +39,27 @@
     <!-- Tombol untuk memunculkan kembali pop up musik -->
     <button id="show-music-btn" class="show-music-btn" onclick="showMusicPopup()">🎵</button>
 
-    <!-- Background Bintang Berkelap-Kelip (Seluruh Halaman Website) -->
-    <canvas id="starfield-canvas"></canvas>
-    <div class="stars-css-fallback"></div>
+    <!-- Background Air Bergelombang Santai (Seluruh Halaman Website) -->
+    <div id="water-bg-wrapper" class="water-bg-wrapper">
+        <div class="water-bg-base"></div>
+        <div class="water-bg-caustic-layer"></div>
+        <div class="water-bg-shimmer"></div>
+        <canvas id="water-canvas"></canvas>
+        <div class="water-bg-depth-overlay"></div>
+    </div>
+
+    <!-- Filter SVG Riak Air Organik -->
+    <svg class="water-svg-filters" aria-hidden="true"
+        style="position: fixed; width: 0; height: 0; pointer-events: none; z-index: -1;">
+        <defs>
+            <filter id="water-displacement" x="-5%" y="-5%" width="110%" height="110%">
+                <feTurbulence id="water-turbulence" type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="3"
+                    result="noise" seed="3" />
+                <feDisplacementMap id="water-displacement-map" in="SourceGraphic" in2="noise" scale="22"
+                    xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
 
     <div id="flower-rain"></div>
 
@@ -58,8 +75,8 @@
     <div id="pin-screen" style="display: none;">
         <div class="pin-container glass-panel">
             <h2>Enter PIN</h2>
-            <p style="margin-bottom: 2px;">passwordnya tanggal lahir kamu + tanggal lahir aku yaa.</p>
-            <p style="margin-top: 0;">(Awas aja kalau lupa tanggal lahir aku)</p>
+            <p style="margin-bottom: 2px;">passwordnya tanggal + bulan jadian kita yaa.</p>
+            <p style="margin-top: 0;">(Awas aja kalau lupa!!)</p>
             <input type="password" id="pin-input" maxlength="4" placeholder="****" inputmode="numeric" pattern="[0-9]*">
         </div>
     </div>
@@ -86,13 +103,16 @@
         <section class="slide glass-panel show-on-scroll">
             <h1 class="aesthetic-font fade-in-text">Happy Birthday,<br>My Everything</h1>
             <p class="aesthetic-font fade-in-text"
-                style="font-size: 1.3rem; color: #ffffff; margin-top: -5px; margin-bottom: 10px; letter-spacing: 2px;">-
-                Elloy -</p>
+                style="font-size: 1.3rem; color: #1a3e5c; margin-top: -5px; margin-bottom: 10px; letter-spacing: 2px;">-
+                Azril -</p>
             <img src="img/foto-pacar.png" alt="Foto Pacar" class="birthday-photo fade-in-text">
-            <p class="typing-text">Hari ini adalah hari yang paling spesial karena di hari ini, semesta membawa kamu ke
-                dunia.</p>
-            <p class="typing-text">Selamat bertambah usia. Terima kasih karena sudah lahir dan tumbuh menjadi pribadi
-                sebaik, sehangat, dan sekuat dirimu sekarang.</p>
+            <p class="typing-text">selamat bertambah usia, cintaku. hari ini adalah tentang kamu, tentang semua kerja
+                kerasmu, tawa kamu, dan semua hal hebat yang sudah kamu lewati sampai detik ini.</p>
+
+            <p class="typing-text">aku cuma mau kamu tahu, aku akan selalu ada di sini—mendukungmu di saat kamu
+                semangat, dan memelukmu kalau kamu lagi lelah. semoga tahun ini membawa lebih banyak kebahagiaan,
+                kesehatan, dan ketenangan untuk hati kamu. terimakasih sudah bertahan sejauh ini. aku sayang kamu, hari
+                ini, esok, dan selamanya.</p>
 
             <div class="pulsating-heart">🤍</div>
 
@@ -101,30 +121,27 @@
 
         <section class="slide glass-panel show-on-scroll">
             <h2 class="baby-pink-text" style="font-style: italic;">A little prayer for you.</h2>
-            <p class="fade-in-text">Selamat ulang tahun, Aa’ 🤍</p>
 
-            <p class="fade-in-text">Semoga di usia aa’ yang baru ini, aa’ selalu diberi kesehatan, kebahagiaan, rezeki
-                yang lancar, dan selalu dipertemukan dengan orang-orang baik yang tulus menyayangi aa’. Semoga semua doa
-                dan impian aa’ bisa Allah kabulkan di waktu yang paling tepat.</p>
+            <p class="fade-in-text">semoga di usia yang baru ini, kamu selalu dikelilingi hal-hal baik, orang-orang yang
+                tulus, dan banyak alasan untuk bahagia. semoga semua yang sedang kamu usahakan perlahan menemukan hasil
+                yang kamu harapkan, dan hal-hal yang selama ini kamu doakan diam-diam bisa satu per satu terwujud.
+                apapun yang sedang kamu kejar, semoga jalannya selalu dipermudah. dan semoga, di antara banyak hal baik
+                yang datang nanti, ada juga banyak momen yang bisa kita nikmati dan ceritakan bareng.</p>
 
-            <p class="fade-in-text">Neng juga mau minta maaf karena sampai sekarang neng masih belum bisa jadi yang
-                terbaik buat aa’. Maaf kalau neng masih banyak kurangnya dan belum bisa selalu memahami aa’ dengan baik.
-                Neng masih harus banyak belajar, tapi neng akan terus berusaha menjadi lebih baik. Terima kasih sudah
-                hadir dan menjadi bagian berarti dalam hidup Neng.</p>
-
-            <p class="fade-in-text">Semoga neng masih diberi kesempatan untuk menemani aa’ melewati banyak hal,
-                merayakan kebahagiaan aa’, dan tetap ada di samping aa’ dalam keadaan apa pun. Happy birthday, aa’.
-                Semoga hari-hari aa’ ke depannya dipenuhi banyak kebahagiaan. 🤍</p>
-
-            <p class="fade-in-text">With love, Neng.</p>
+            <p class="fade-in-text">aku juga berharap, ke depannya kamu selalu dikelilingi orang-orang baik yang bisa
+                bikin hari-harimu terasa lebih ringan. semoga saat lelah, selalu ada hal kecil yang bisa mengembalikan
+                semangatmu, dan saat bahagia, ada banyak cerita yang bisa kamu bagi. Kalau suatu saat kita masih sering
+                bertukar cerita dan saling menemani di sela-sela kesibukan masing-masing, menurutku itu sudah cukup
+                menyenangkan. pada akhirnya, aku cuma berharap kamu selalu baik-baik saja dan menemukan banyak hal yang
+                bisa membuatmu bahagia.</p>
         </section>
 
         <section class="slide photo-panel show-on-scroll">
             <h2 class="aesthetic-font"
-                style="line-height: 0.8; margin-bottom: -15px; position: relative; top: 15px; color: #ffb6c1;">
+                style="line-height: 0.8; margin-bottom: -15px; position: relative; top: 15px; color: #8c1b44; text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 0 12px rgba(255, 255, 255, 0.8);">
                 <span style="font-size: 2em; display: block;">The little things</span>
                 <span
-                    style="font-size: 1.2em; display: block; opacity: 0.9; transform: translateX(40px); color: #ffffff;">i
+                    style="font-size: 1.2em; display: block; opacity: 0.95; transform: translateX(40px); color: #0c2d47; text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 0 8px rgba(255, 255, 255, 0.8); font-weight: 600;">i
                     know about
                     you</span>
             </h2>
@@ -132,31 +149,31 @@
             <div class="solar-system">
                 <div class="orbit-track">
 
-                    <div class="planet-card item1" data-caption="Bakso">
+                    <div class="planet-card item1" data-caption="Batagor">
                         <img src="img/favorite-food.jpg" alt="Food">
                         <p class="planet-caption">Your favorite food</p>
                     </div>
 
-                    <div class="planet-card item2" data-caption="Jus Alpukat">
+                    <div class="planet-card item2" data-caption="Es Teh">
                         <img src="img/favorite-drink.jpg" alt="Drink">
                         <p class="planet-caption">Your favorite drink</p>
                     </div>
 
                     <div class="planet-card item3"
                         data-embed="https://open.spotify.com/embed/track/4awLLAITdfA1nSoDvR4J9d?utm_source=generator&si=ae615b5e7b914182"
-                        data-caption="Oncom Gondrong - Bandung Music, Ama">
-                        <img src="img/favorite-song.png" alt="Song">
+                        data-caption="Satu - Dewa 19">
+                        <img src="img/favorite-song.jpg" alt="Song">
                         <p class="planet-caption">Your favorite song</p>
                     </div>
 
                     <div class="planet-card item4"
                         data-embed="https://www.youtube.com/embed/JyCUaWUvH08?si=9mZjEwMhF6xPeYa8"
-                        data-caption="Warintil Official">
+                        data-caption="Dhot Design">
                         <img src="img/favorite-yt.jpg" alt="YouTube Video">
                         <p class="planet-caption">Your favorite Youtube Channel</p>
                     </div>
 
-                    <div class="planet-card item5" data-caption="Cilla Cantik">
+                    <div class="planet-card item5" data-caption="Nayraa">
                         <img src="img/favorite-person.jpeg" alt="Person">
                         <p class="planet-caption">Your favorite person</p>
                     </div>
@@ -166,11 +183,12 @@
         </section>
 
         <section class="slide photo-panel show-on-scroll">
-            <h2 class="aesthetic-font" style="line-height: 0.8; margin-bottom: 35px; color: #ffb6c1;">
-                <span style="font-size: 2em; display: block;">Our Food Date</span>
+            <h2 class="aesthetic-font"
+                style="line-height: 0.8; margin-bottom: 35px; color: #8c1b44; text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 0 12px rgba(255, 255, 255, 0.8);">
+                <span style="font-size: 2em; display: block;">Some Candid Pict</span>
                 <span
-                    style="font-size: 1.2em; display: block; opacity: 0.9; transform: translateX(40px); color: #ffffff;">Core
-                    Memories</span>
+                    style="font-size: 1.2em; display: block; opacity: 0.95; transform: translateX(40px); color: #0c2d47; text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 0 8px rgba(255, 255, 255, 0.8); font-weight: 600;">Of
+                    You</span>
             </h2>
             <div class="gallery-scroll">
                 <div class="scratch-card">
@@ -210,11 +228,19 @@
             <div class="polaroid-grid">
                 <div class="polaroid">
                     <img src="img/you.jpeg" alt="Foto Pribadi 1">
-                    <p class="caption">Thankyou</p>
+                    <p class="caption">You</p>
                 </div>
                 <div class="polaroid">
                     <img src="img/are.jpeg" alt="Foto Pribadi 2">
-                    <p class="caption">For Everything</p>
+                    <p class="caption">Are</p>
+                </div>
+                <div class="polaroid">
+                    <img src="img/My.jpeg" alt="Foto Pribadi 3">
+                    <p class="caption">My</p>
+                </div>
+                <div class="polaroid">
+                    <img src="img/Mine.jpeg" alt="Foto Pribadi 4">
+                    <p class="caption">Mine</p>
                 </div>
             </div>
         </section>
@@ -233,8 +259,9 @@
                 fase hidupmu. Selamat bertambah usia, satu-satunya duniaku. 🤍
             </p>
 
-            <hr style="border: 0; border-top: 1px solid rgba(255,182,193,0.3); margin-bottom: 20px;">
-            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 5px;">Dari orang yang paling bersyukur memilikimu,
+            <hr style="border: 0; border-top: 1px solid rgba(140, 27, 68, 0.25); margin-bottom: 20px;">
+            <p style="font-size: 0.95rem; opacity: 0.85; margin-bottom: 5px; color: #1a3e5c;">Dari orang yang paling
+                bersyukur memilikimu,
             </p>
             <p class="sender-name aesthetic-font baby-pink-text" style="font-size: 2rem; margin-top: 5px;">Cilla Cantik
             </p>
@@ -269,7 +296,7 @@
                                 <div class="flame-inner"></div>
                             </div>
                             <div class="candle-number-body">
-                                <span class="candle-digit">8</span>
+                                <span class="candle-digit">7</span>
                             </div>
                         </div>
                     </div>
