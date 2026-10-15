@@ -450,7 +450,7 @@
         const pinPopupClose = document.getElementById('pin-popup-close');
 
         // DEFAULT PIN: Silakan ubah angka ini jika ingin PIN lain
-        const SECRET_PIN = "0107";
+        const SECRET_PIN = "1718";
 
         let pinAttempt = 0;
         let popupTimeout = null;
@@ -714,7 +714,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // C. JIKA YANG DIKLIK ADALAH POLAROID
                 else if (this.classList.contains('polaroid')) {
                     modalImg.src = this.querySelector('img').src;
-                    modalImg.style.aspectRatio = "1 / 1";
+                    modalImg.style.aspectRatio = "3 / 4";
                 }
                 // D. JIKA YANG DIKLIK ADALAH GALERI CINTA
                 else {
