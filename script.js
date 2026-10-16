@@ -491,7 +491,7 @@
         const pinPopupClose = document.getElementById('pin-popup-close');
 
         // DEFAULT PIN: Silakan ubah angka ini jika ingin PIN lain
-        const SECRET_PIN = "2505";
+        const SECRET_PIN = "1710";
 
         let pinAttempt = 0;
         let popupTimeout = null;
@@ -502,7 +502,7 @@
                 // Percobaan pertama: tampilkan foto kucing
                 showCat: true,
                 emoji: '',
-                message: 'Masa tanggal spesial kita lupa?',
+                message: 'Masa tanggal spesial sendiri lupa?',
                 buttonText: 'Iya iya maaf 😭'
             },
             {
@@ -762,7 +762,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 // D. JIKA YANG DIKLIK ADALAH GALERI CINTA
                 else {
                     modalImg.src = this.src;
-                    modalImg.style.aspectRatio = "9 / 16";
+                    const cardParent = this.closest('.scratch-card');
+                    if (cardParent && (cardParent.classList.contains('card-landscape') || cardParent.matches(':nth-child(4), :nth-child(5)'))) {
+                        modalImg.style.aspectRatio = "3 / 2";
+                    } else {
+                        modalImg.style.aspectRatio = "9 / 16";
+                    }
                 }
 
                 modal.classList.add('show-modal');
@@ -1188,8 +1193,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let drawMoveCount = 0;
 
         setTimeout(() => {
-            canvas.width = 220;
-            canvas.height = Math.round(220 * 16 / 9);
+            const cardEl = canvas.parentElement;
+            const cWidth = (cardEl && cardEl.offsetWidth > 0) ? cardEl.offsetWidth : (cardEl && cardEl.classList.contains('card-landscape') ? 420 : 220);
+            const isLandscape = cardEl && (cardEl.classList.contains('card-landscape') || index >= 3);
+            const cHeight = (cardEl && cardEl.offsetHeight > 0) ? cardEl.offsetHeight : Math.round(isLandscape ? cWidth * 2 / 3 : cWidth * 16 / 9);
+
+            canvas.width = cWidth;
+            canvas.height = cHeight;
 
             paintWaterScratchCanvas(canvas, ctx, index);
 
