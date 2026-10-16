@@ -242,6 +242,33 @@ body {
     will-change: transform, opacity;
 }
 
+/* =========================================
+   OPTIMASI PERFORMA BACKGROUND AIR DI HP (60 FPS)
+========================================= */
+@media (max-width: 768px) {
+    /* Hapus filter SVG berat di HP untuk menghemat beban CPU & baterai */
+    .water-bg-base {
+        filter: brightness(1.02) contrast(1.06) saturate(1.12) !important;
+        transform: translateZ(0);
+        will-change: auto;
+    }
+
+    /* Redakan composite blend mode pada layer ganda di HP */
+    .water-bg-caustic-layer {
+        mix-blend-mode: normal !important;
+        opacity: 0.35;
+        animation: none !important;
+        transform: translateZ(0);
+        will-change: auto;
+    }
+
+    .water-bg-shimmer {
+        mix-blend-mode: normal !important;
+        opacity: 0.25;
+        animation: none !important;
+    }
+}
+
 /* Layer 3: Efek Kilauan Sinar Matahari & Biasan Pelangi Halus */
 .water-bg-shimmer {
     position: absolute;
@@ -1207,7 +1234,15 @@ body {
         padding: 30px 15px;
     }
 
-    .glass-panel,
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 8px 24px rgba(0, 45, 80, 0.12);
+        padding: 25px 20px;
+        margin-bottom: 50px;
+    }
+
     .photo-panel {
         padding: 25px 20px;
         margin-bottom: 50px;
@@ -1240,6 +1275,21 @@ body {
         aspect-ratio: 3 / 2;
     }
 
+    /* Hilangkan animasi floating konstan di HP agar scrolling super mulus */
+    .scratch-card,
+    .scratch-card:nth-child(even) {
+        animation: none !important;
+    }
+
+    .gallery-scroll {
+        -webkit-overflow-scrolling: touch;
+        transform: translateZ(0);
+    }
+
+    .birthday-photo {
+        animation: none !important;
+    }
+
     .polaroid-grid {
         grid-template-columns: repeat(2, 1fr);
         /* Memaksa agar tetap 2 ke samping di HP */
@@ -1250,6 +1300,12 @@ body {
     .polaroid {
         padding: 8px 8px 15px 8px;
         /* Bingkai putih polaroid sedikit dikecilkan */
+        animation: none !important;
+        box-shadow: 0 4px 15px rgba(0, 30, 60, 0.12) !important;
+    }
+
+    .polaroid:nth-child(even) {
+        animation: none !important;
     }
 
     .polaroid .caption {

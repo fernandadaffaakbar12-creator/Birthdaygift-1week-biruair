@@ -17,9 +17,11 @@
         let startTime = performance.now();
         let lastTime = startTime;
 
+        let isMobile = false;
+
         // Kumpulan riak air interaktif (interaksi klik / sentuh)
         const ripples = [];
-        const MAX_RIPPLES = 12;
+        let maxRipples = 12;
 
         // Kumpulan kilauan cahaya matahari (water sparkles / glints)
         let sparkles = [];
@@ -31,8 +33,14 @@
         let lastInteractionTime = performance.now();
         let nextIdleDropTime = performance.now() + 3000;
 
+        function checkMobile() {
+            return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        }
+
         function resize() {
-            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            isMobile = checkMobile();
+            // Di HP gunakan DPR 1 untuk menghemat 75% beban GPU/memori render
+            dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
             width = window.innerWidth;
             height = window.innerHeight;
             canvas.width = Math.round(width * dpr);
@@ -41,6 +49,7 @@
             canvas.style.height = height + 'px';
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+            maxRipples = isMobile ? 4 : 12;
             generateWaveRibbons();
             generateSparkles();
         }
@@ -48,19 +57,20 @@
         // Membuat konfigurasi pita gelombang kaustik air santai
         function generateWaveRibbons() {
             waveRibbons = [];
-            const count = Math.min(Math.max(Math.floor(height / 85), 8), 16);
+            // Di HP cukup 5 pita gelombang agar kalkulasi sangat ringan namun tetap anggun
+            const count = isMobile ? 5 : Math.min(Math.max(Math.floor(height / 85), 8), 16);
             for (let i = 0; i < count; i++) {
                 waveRibbons.push({
-                    baseY: (height / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 40,
-                    amplitude: 8 + Math.random() * 12,
+                    baseY: (height / (count + 1)) * (i + 1) + (Math.random() - 0.5) * (isMobile ? 25 : 40),
+                    amplitude: isMobile ? (6 + Math.random() * 8) : (8 + Math.random() * 12),
                     frequency: 0.003 + Math.random() * 0.003,
                     speed: 0.0006 + Math.random() * 0.0005,
                     phase: Math.random() * Math.PI * 2,
-                    lineWidth: 1.2 + Math.random() * 1.8,
+                    lineWidth: 1.2 + Math.random() * 1.5,
                     alpha: 0.12 + Math.random() * 0.14,
-                    // Warna bias spektrum pelangi lembut (matching foto lampiran)
+                    // Warna bias spektrum pelangi lembut
                     hueOffset: Math.random() * 30 - 15,
-                    iridescent: i % 3 === 0
+                    iridescent: i % 2 === 0
                 });
             }
         }
@@ -68,19 +78,19 @@
         // Membuat kilauan pantulan cahaya matahari pada puncak gelombang
         function generateSparkles() {
             sparkles = [];
-            const count = Math.min(Math.max(Math.floor((width * height) / 22000), 22), 48);
+            // Di HP cukup 12 kilauan kristal air
+            const count = isMobile ? 12 : Math.min(Math.max(Math.floor((width * height) / 22000), 22), 48);
             for (let i = 0; i < count; i++) {
                 sparkles.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
-                    size: 2.5 + Math.random() * 3.5,
+                    size: 2.2 + Math.random() * 3.0,
                     alpha: 0,
-                    maxAlpha: 0.45 + Math.random() * 0.4,
+                    maxAlpha: 0.45 + Math.random() * 0.35,
                     twinkleSpeed: 0.0012 + Math.random() * 0.002,
                     phase: Math.random() * Math.PI * 2,
                     rotation: Math.random() * Math.PI,
-                    rotSpeed: (Math.random() - 0.5) * 0.004,
-                    // Sedikit bias pelangi (merah muda, cyan, emas lembut)
+                    rotSpeed: (Math.random() - 0.5) * 0.003,
                     type: Math.random() < 0.35 ? 'iridescent' : 'pure'
                 });
             }
@@ -113,7 +123,8 @@
             if (clientX === null || clientY === null) return;
 
             // Throttle untuk pergerakan halus (efek wake ripple santai)
-            if (now - lastMove > 180) {
+            const throttle = isMobile ? 320 : 180;
+            if (now - lastMove > throttle) {
                 addRipple(clientX, clientY, 0.45);
                 lastMove = now;
             }
@@ -201,7 +212,7 @@
                 ctx.lineCap = 'round';
 
                 // Garis bergelombang santai menggunakan kombinasi sinus halus
-                const step = 20;
+                const step = isMobile ? 36 : 20;
                 let started = false;
                 for (let x = -20; x <= width + 20; x += step) {
                     const wave1 = Math.sin(x * w.frequency + t) * w.amplitude;
@@ -269,12 +280,12 @@
                 const dropX = width * (0.2 + Math.random() * 0.6);
                 const dropY = height * (0.2 + Math.random() * 0.6);
                 addRipple(dropX, dropY, 0.55);
-                nextIdleDropTime = time + 4200 + Math.random() * 2500;
+                nextIdleDropTime = time + (isMobile ? 7000 : 4200) + Math.random() * 2500;
             }
 
-            // 5. Animasi halus frekuensi gelombang pada SVG displacement filter
-            if (turbulenceEl) {
-                // Pergeseran super santai pada baseFrequency membuat texture air bergelombang hidup secara organik
+            // 5. Animasi halus frekuensi gelombang pada SVG displacement filter (HANYA desktop)
+            // Di HP dimatikan karena browser mobile mere-rasterize noise via CPU setiap frame yang memicu lag parah
+            if (turbulenceEl && !isMobile) {
                 const freqX = 0.012 + Math.sin(time * 0.0006) * 0.0025;
                 const freqY = 0.020 + Math.cos(time * 0.0005) * 0.003;
                 turbulenceEl.setAttribute('baseFrequency', `${freqX.toFixed(5)} ${freqY.toFixed(5)}`);
@@ -840,8 +851,9 @@ function buatHujanBunga() {
     if (!container) return;
 
     const bungaPilihan = ['🌸', '🌺', '🌷', '✨', '💖'];
+    const petalCount = (window.innerWidth <= 768) ? 18 : 40;
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < petalCount; i++) {
         const petal = document.createElement('div');
         petal.classList.add('petal');
 
